@@ -1,9 +1,13 @@
 ---
-// Per-project brand mark for the homepage list. Each project's real logo is
-// hand-added here (slug -> markup + tile color) rather than derived
-// automatically — there's no generic way to guess the right mark for a
-// future project, so a new post just needs its own case added below. Unknown
-// slugs fall through to a plain neutral dot rather than breaking.
+// Per-project mark for the homepage list, hand-added here (slug -> markup +
+// tile color) rather than derived automatically — there's no generic way to
+// guess the right mark for a future project, so a new post just needs its
+// own case added below. Where a project IS an instance of a well-known
+// tool (Pi-hole), that tool's real logo is the natural mark. Where the post
+// is really about what got built with a tool rather than the tool itself
+// (OpenClaw framework -> a golf tee-time bot), the icon represents the
+// built thing, not the underlying platform. Unknown slugs fall through to
+// a plain neutral dot rather than breaking.
 interface Props {
   slug: string;
 }
@@ -12,22 +16,11 @@ const { slug } = Astro.props;
 ---
 {slug === 'openclaw' && (
   <div class="icon-tile oc">
-    <svg class="icon" viewBox="0 0 120 120" fill="none">
-      <defs>
-        <linearGradient id="oc-lobster" x1="10" y1="5" x2="115" y2="115" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#ff4d4d" />
-          <stop offset="1" stop-color="#991b1b" />
-        </linearGradient>
-      </defs>
-      <path fill="url(#oc-lobster)" d="M60,10 C42,10 22,22 15,55 C10,78 25,95 45,100 L45,110 L52,110 L52,100 C56,101 60,101 64,100 L65,110 L72,110 L72,100 C92,95 108,78 105,55 C98,22 78,10 60,10 Z" />
-      <path fill="url(#oc-lobster)" d="M20,45 C12,42 6,48 5,60 C4,68 10,72 16,68 C20,65 22,55 20,45 Z" />
-      <path fill="url(#oc-lobster)" d="M100,45 C108,42 114,48 115,60 C116,68 110,72 104,68 C100,65 98,55 100,45 Z" />
-      <path stroke="#ff4d4d" stroke-width="3" stroke-linecap="round" d="M45,15 Q37,10 30,8" />
-      <path stroke="#ff4d4d" stroke-width="3" stroke-linecap="round" d="M75,15 Q83,10 90,8" />
-      <circle cx="45" cy="35" r="6" fill="#050810" />
-      <circle cx="75" cy="35" r="6" fill="#050810" />
-      <circle cx="46" cy="34" r="2.5" fill="#00e5cc" />
-      <circle cx="76" cy="34" r="2.5" fill="#00e5cc" />
+    <svg class="icon" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="19.4" rx="6.5" ry="2" fill="#cfead7" />
+      <line x1="12" y1="4" x2="12" y2="19" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" />
+      <path d="M12,5 L18.4,7.4 L12,9.8 Z" fill="#1e8f4e" />
+      <circle cx="17.1" cy="18.5" r="1.7" fill="#ffffff" stroke="#c7c9d1" stroke-width="0.6" />
     </svg>
   </div>
 )}
@@ -77,7 +70,7 @@ const { slug } = Astro.props;
     flex-shrink: 0;
   }
   .icon-tile.oc {
-    background: #fde3e3;
+    background: #e1f3e6;
   }
   .icon-tile.ph {
     background: oklch(96% 0.008 260);

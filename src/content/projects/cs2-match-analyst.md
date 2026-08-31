@@ -1,7 +1,7 @@
 ---
 title: "CS2 Match Analyst: A Local Agent Grounded in Real Match Data"
 summary: "A local agent that reads a completed CS2 match from Leetify and writes a grounded report on how I played, no cloud LLM calls."
-tags: ["dspy", "cs2", "ollama", "leetify"]
+tags: ["dspy", "ollama", "leetify"]
 date: 2026-08-23
 type: "writeup"
 ---
