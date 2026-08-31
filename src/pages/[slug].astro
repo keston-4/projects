@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectIcon from '../components/ProjectIcon.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -24,7 +25,10 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', {
   <header class="head">
     <div class="glow"></div>
     <a class="back" href={base}>&larr; projects</a>
-    <h1>{project.data.title}</h1>
+    <div class="title-row">
+      <ProjectIcon slug={project.id} />
+      <h1>{project.data.title}</h1>
+    </div>
     <div class="meta">
       {dateLabel}
       &nbsp;&middot;&nbsp;
@@ -195,13 +199,22 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', {
   .back:focus-visible {
     text-decoration: underline;
   }
-  h1 {
+  .title-row {
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .title-row :global(.icon-tile) {
+    margin-top: 2px;
+  }
+  h1 {
     font-family: 'Sora', sans-serif;
     font-weight: 800;
     font-size: clamp(28px, 4vw, 34px);
     letter-spacing: -0.015em;
-    margin: 4px 0 0;
+    margin: 0;
     line-height: 1.1;
     max-width: 20ch;
   }
