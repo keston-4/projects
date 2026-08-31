@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  active?: 'projects' | 'about';
+}
+
+const { title, active = 'projects' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <title>{title} · keston-4</title>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <a href={base} class="word">keston-4</a>
+      <div class="links">
+        <div class="navcol">
+          <a href={base} class="navlink" class:list={{ active: active === 'projects' }}>projects</a>
+          <div class="mark" class:list={{ show: active === 'projects' }}></div>
+        </div>
+        <div class="navcol">
+          <a href={`${base}about/`} class="navlink" class:list={{ active: active === 'about' }}>about</a>
+          <div class="mark" class:list={{ show: active === 'about' }}></div>
+        </div>
+      </div>
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  .site-nav {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 28px 24px 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+  .word {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .links {
+    display: flex;
+    gap: 24px;
+  }
+  .navcol {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .navlink {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .navlink:hover,
+  .navlink:focus-visible {
+    color: var(--ink);
+  }
+  .navlink.active {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .word:hover {
+    color: var(--accent);
+  }
+  .mark {
+    width: 42px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    visibility: hidden;
+  }
+  .mark.show {
+    visibility: visible;
+  }
+  main {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 0 96px;
+  }
+</style>

@@ -1,0 +1,413 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content, headings } = await render(project);
+const base = import.meta.env.BASE_URL;
+const chapters = headings.filter((h) => h.depth === 2);
+const dateLabel = project.data.date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+---
+<BaseLayout title={project.data.title} active="projects">
+  <header class="head">
+    <div class="glow"></div>
+    <a class="back" href={base}>&larr; projects</a>
+    <h1>{project.data.title}</h1>
+    <div class="meta">
+      {dateLabel}
+      &nbsp;&middot;&nbsp;
+      {project.data.tags.map((tag, i) => (i === 0 ? <b>{tag}</b> : <span> {tag}</span>))}
+    </div>
+  </header>
+
+  <div class="layout">
+    <article class="colmain prose">
+      <Content />
+    </article>
+
+    {chapters.length > 1 && (
+      <div class="colrail">
+        <nav class="toc" id="toc">
+          <div class="label">On this page</div>
+          {chapters.map((h) => (
+            <a href={`#${h.slug}`} data-target={h.slug}>{h.text}</a>
+          ))}
+        </nav>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<script>
+  // Both init functions are unconditional (always present on this page's
+  // single script bundle) rather than one being wrapped in a template
+  // conditional — Astro's script hoisting doesn't reliably handle a
+  // <script> tag nested inside a JSX conditional block, which was
+  // silently dropping this script entirely on pages without a TOC. Each
+  // function already no-ops safely when its target elements aren't on
+  // the page, so there's no behavioral cost to always calling both.
+
+  function initScrollSpy() {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('#toc a'));
+    if (links.length === 0) return;
+
+    const headingEls = links
+      .map((l) => document.getElementById(l.dataset.target || ''))
+      .filter((el): el is HTMLElement => el !== null);
+    if (headingEls.length === 0) return;
+
+    // How close to the top of the viewport a heading must be to count as
+    // "reached." Recomputed from actual positions on every scroll frame,
+    // rather than reacting to IntersectionObserver's per-callback entry
+    // list — a short section can enter and exit a narrow observation band
+    // within a single animation frame, so a callback only ever reports the
+    // *next* heading entering, never the target settling into place.
+    const THRESHOLD = 96;
+
+    function update() {
+      let currentIndex = 0;
+      for (let i = 0; i < headingEls.length; i++) {
+        if (headingEls[i].getBoundingClientRect().top <= THRESHOLD) {
+          currentIndex = i;
+        }
+      }
+      links.forEach((l) => l.classList.remove('current'));
+      links[currentIndex].classList.add('current');
+    }
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    }
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    links.forEach((l) => {
+      l.addEventListener('click', (e) => {
+        e.preventDefault();
+        const el = document.getElementById(l.dataset.target || '');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  function initLightbox() {
+    const images = Array.from(document.querySelectorAll<HTMLImageElement>('.prose img'));
+    if (images.length === 0) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Expanded image');
+    overlay.hidden = true;
+
+    const bigImg = document.createElement('img');
+    overlay.appendChild(bigImg);
+    document.body.appendChild(overlay);
+
+    let lastFocused: HTMLElement | null = null;
+
+    function open(src: string, alt: string, trigger: HTMLElement) {
+      lastFocused = trigger;
+      bigImg.src = src;
+      bigImg.alt = alt;
+      overlay.hidden = false;
+      overlay.focus();
+      document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      lastFocused?.focus();
+    }
+
+    images.forEach((img) => {
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', `Expand image: ${img.alt || 'image'}`);
+      img.addEventListener('click', () => open(img.src, img.alt, img));
+      img.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open(img.src, img.alt, img);
+        }
+      });
+    });
+
+    overlay.tabIndex = -1;
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !overlay.hidden) close();
+    });
+  }
+
+  initScrollSpy();
+  initLightbox();
+</script>
+
+<style>
+  .head {
+    position: relative;
+    padding: 40px 24px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .glow {
+    position: absolute;
+    top: -160px;
+    left: 40%;
+    transform: translateX(-50%);
+    width: 640px;
+    height: 420px;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    pointer-events: none;
+  }
+  .back {
+    position: relative;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .back:hover,
+  .back:focus-visible {
+    text-decoration: underline;
+  }
+  h1 {
+    position: relative;
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 34px);
+    letter-spacing: -0.015em;
+    margin: 4px 0 0;
+    line-height: 1.1;
+    max-width: 20ch;
+  }
+  .meta {
+    position: relative;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .meta b {
+    color: var(--accent);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 190px;
+    gap: 0;
+    padding: 0 24px;
+    padding-bottom: 60vh;
+  }
+  .colmain {
+    padding: 0 40px 0 0;
+    min-width: 0;
+  }
+  .colrail {
+    border-left: 1px solid var(--border);
+    padding: 4px 0 0 28px;
+  }
+  .toc {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .toc .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .toc a {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .toc a:hover,
+  .toc a:focus-visible {
+    color: var(--ink);
+  }
+  .toc :global(a.current) {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  @media (max-width: 720px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .colrail {
+      display: none;
+    }
+    .colmain {
+      padding-right: 0;
+    }
+  }
+
+  .prose :global(h2) {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0 0 16px;
+    scroll-margin-top: 24px;
+  }
+  .prose :global(section):first-of-type,
+  .prose :global(h2):first-of-type {
+    margin-top: 0;
+  }
+  .prose :global(h2) {
+    margin-top: 44px;
+  }
+  .prose :global(p) {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink);
+    opacity: 0.82;
+    margin: 0 0 20px;
+    max-width: 62ch;
+  }
+  .prose :global(blockquote) {
+    margin: 0 0 24px;
+    padding: 4px 0 4px 20px;
+    border-left: 2px solid oklch(48% 0.2 255 / 0.5);
+  }
+  .prose :global(blockquote p) {
+    margin: 0 0 8px;
+    font-size: 14.5px;
+    opacity: 0.9;
+  }
+  .prose :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+  .prose :global(blockquote strong) {
+    color: var(--ink);
+    opacity: 1;
+  }
+  .prose :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 8px 0;
+    cursor: zoom-in;
+    transition: opacity 0.15s ease;
+  }
+  .prose :global(img:hover) {
+    opacity: 0.92;
+  }
+  .prose :global(img:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .prose :global(p em) {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: -12px;
+  }
+  .prose :global(ol) {
+    margin: 0 0 20px;
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .prose :global(li) {
+    font-size: 15px;
+    line-height: 1.65;
+    opacity: 0.85;
+    max-width: 60ch;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 28px;
+    font-size: 13.5px;
+  }
+  .prose :global(th) {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px 10px 0;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .prose :global(td) {
+    padding: 12px 12px 12px 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .prose :global(td:first-child) {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .prose :global(code) {
+    background: oklch(50% 0 0 / 0.08);
+    font-size: 0.9em;
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+  .prose :global(a) {
+    text-decoration-color: oklch(48% 0.2 255 / 0.35);
+  }
+  .prose :global(a:hover),
+  .prose :global(a:focus-visible) {
+    text-decoration-color: currentColor;
+  }
+
+  :global(.lightbox-overlay) {
+    position: fixed;
+    inset: 0;
+    background: oklch(10% 0 0 / 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    z-index: 50;
+    cursor: zoom-out;
+  }
+  :global(.lightbox-overlay[hidden]) {
+    display: none;
+  }
+  :global(.lightbox-overlay img) {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 24px 64px oklch(0% 0 0 / 0.5);
+    cursor: zoom-out;
+  }
+</style>

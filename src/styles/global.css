@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --bg: oklch(99% 0 0);
+  --ink: oklch(15% 0 0);
+  --muted: oklch(45% 0.005 260);
+  --border: oklch(90% 0.005 260);
+  --accent: oklch(48% 0.20 255);
+  --glow: oklch(93% 0.04 255 / 0.9);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Public Sans', system-ui, sans-serif;
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}

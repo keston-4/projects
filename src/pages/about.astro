@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="About" active="about">
+  <div class="wrap">
+    <div class="glow"></div>
+    <h1>About</h1>
+    <p>I build stuff, this is where I write about it.</p>
+    <p><a href="https://github.com/keston-4">github.com/keston-4</a></p>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap {
+    position: relative;
+    padding: 60px 24px 72px;
+  }
+  .glow {
+    position: absolute;
+    top: -160px;
+    left: 40%;
+    transform: translateX(-50%);
+    width: 640px;
+    height: 420px;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    pointer-events: none;
+  }
+  h1 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: -0.015em;
+    margin: 24px 0 28px;
+  }
+  p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+    opacity: 0.82;
+    margin: 0 0 12px;
+    max-width: 58ch;
+  }
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>

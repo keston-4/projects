@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectIcon from '../components/ProjectIcon.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL;
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+<BaseLayout title="Projects" active="projects">
+  <div class="wrap">
+    <div class="glow"></div>
+    <h1>My Projects</h1>
+    <div class="entries">
+      {projects.map((project, i) => (
+        <>
+          <a class="entry" href={`${base}${project.id}/`}>
+            <ProjectIcon slug={project.id} />
+            <div class="body">
+              <div class="title">{project.data.title}</div>
+              <p class="desc">{project.data.summary}</p>
+              <div class="tags">
+                {project.data.tags.map((tag, j) => (
+                  j === 0
+                    ? <b>{tag}</b>
+                    : <span>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </a>
+          {i < projects.length - 1 && <div class="fade-rule"></div>}
+        </>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap {
+    position: relative;
+    padding: 60px 24px 72px;
+  }
+  .glow {
+    position: absolute;
+    top: -190px;
+    left: 40%;
+    transform: translateX(-50%);
+    width: 760px;
+    height: 500px;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    pointer-events: none;
+  }
+  h1 {
+    position: relative;
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 54px;
+    letter-spacing: -0.022em;
+    line-height: 1.04;
+    margin: 24px 0 48px;
+    max-width: 11ch;
+  }
+  .entries {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .entry {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px 24px;
+    margin: 0 -24px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+  }
+  .entry:hover,
+  .entry:focus-visible {
+    background: oklch(96% 0.02 255);
+  }
+  .entry:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .entry:hover .title {
+    color: var(--accent);
+  }
+  .body {
+    flex: 1;
+    min-width: 0;
+  }
+  .title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    transition: color 0.15s ease;
+  }
+  .desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+    opacity: 0.75;
+    margin: 10px 0 14px;
+    max-width: 58ch;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tags b {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .fade-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(48% 0.2 255 / 0.35), transparent);
+  }
+
+  @media (max-width: 640px) {
+    h1 {
+      font-size: 38px;
+    }
+  }
+</style>
