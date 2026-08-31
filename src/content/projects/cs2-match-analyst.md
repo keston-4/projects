@@ -1,7 +1,7 @@
 ---
 title: "CS2 Match Analyst: A Local Agent Grounded in Real Match Data"
 summary: "A local agent that reads a completed CS2 match from Leetify and writes a grounded report on how I played, no cloud LLM calls."
-tags: ["cs2", "dspy", "ollama", "leetify"]
+tags: ["dspy", "cs2", "ollama", "leetify"]
 date: 2026-08-23
 type: "writeup"
 ---
@@ -30,6 +30,9 @@ Four pieces, wired together to keep everything on the host:
 - **leetify-mcp**, a custom MCP server wrapping Leetify's public API (`api-public.cs-prod.leetify.com`), exposed as tools for player ratings, match stats, and trend data.
 - **A DSPy ReAct agent**, capped at eight reasoning iterations, that decides which tools to call and writes the final report.
 - **`analyze.py`**, the CLI entry point.
+
+![Architecture: the agent reasons against Ollama and acts against leetify-mcp, which is the only piece that reaches the open internet](../cs2-architecture.png)
+*Everything stays on your machine except the one HTTPS call leetify-mcp makes out to Leetify's public API.*
 
 The agent talks to leetify-mcp over MCP's streamable HTTP transport, and to Ollama through DSPy's LM interface. leetify-mcp exposes three tools the agent can call: match stats for one specific player (already filtered, so it can't accidentally mix in a teammate's numbers), that player's category ratings (aim, positioning, utility, clutch, opening), and their trend across recent matches.
 
