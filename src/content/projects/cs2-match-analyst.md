@@ -31,7 +31,7 @@ Four pieces, wired together to keep everything on the host:
 - **A DSPy ReAct agent**, capped at eight reasoning iterations, that decides which tools to call and writes the final report.
 - **`analyze.py`**, the CLI entry point.
 
-![Architecture: the agent reasons against Ollama and acts against leetify-mcp, which is the only piece that reaches the open internet](../cs2-architecture.png)
+![Architecture: the agent reasons against Ollama and acts against leetify-mcp, which is the only piece that reaches the open internet](../cs2-architecture.svg)
 *Everything stays on your machine except the one HTTPS call leetify-mcp makes out to Leetify's public API.*
 
 The agent talks to leetify-mcp over MCP's streamable HTTP transport, and to Ollama through DSPy's LM interface. leetify-mcp exposes three tools the agent can call: match stats for one specific player (already filtered, so it can't accidentally mix in a teammate's numbers), that player's category ratings (aim, positioning, utility, clutch, opening), and their trend across recent matches.
