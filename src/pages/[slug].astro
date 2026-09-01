@@ -325,10 +325,14 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', {
     opacity: 1;
   }
   .prose :global(img) {
-    width: 100%;
+    display: block;
+    width: auto;
     height: auto;
+    max-width: 100%;
+    max-height: 70vh;
+    margin: 8px auto;
     border-radius: 10px;
-    margin: 8px 0;
+    border: 1px solid var(--border);
     cursor: zoom-in;
     transition: opacity 0.15s ease;
   }

@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { slug } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 {slug === 'openclaw' && (
   <div class="icon-tile oc">
@@ -64,7 +65,13 @@ const { slug } = Astro.props;
   </div>
 )}
 
-{slug !== 'openclaw' && slug !== 'pihole' && slug !== 'cs2-match-analyst' && slug !== 'auto-stop-firebase-ext' && (
+{slug === 'sayso' && (
+  <div class="icon-tile ss">
+    <img class="icon" src={`${base}sayso-mark.png`} alt="" />
+  </div>
+)}
+
+{slug !== 'openclaw' && slug !== 'pihole' && slug !== 'cs2-match-analyst' && slug !== 'auto-stop-firebase-ext' && slug !== 'sayso' && (
   <div class="icon-tile fallback">
     <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="10" cy="10" r="3" />
@@ -93,6 +100,9 @@ const { slug } = Astro.props;
   }
   .icon-tile.as {
     background: #e3edfd;
+  }
+  .icon-tile.ss {
+    background: oklch(95% 0.015 280);
   }
   .icon-tile.fallback {
     background: var(--accent-tint, oklch(94% 0.035 255));
